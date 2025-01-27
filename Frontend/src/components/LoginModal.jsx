@@ -1,8 +1,11 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from "react-hook-form"
+import axios from 'axios'
+import toast from 'react-hot-toast'
 
 export default function LoginModal() {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -10,7 +13,30 @@ export default function LoginModal() {
     formState: { errors },
   } = useForm()
 
-  const onSubmit = (data) => console.log(data)
+  const onSubmit = async (data) => {
+    const userInfo = {
+      email: data.email,
+      password: data.password
+    }
+    // console.log(userInfo);
+    axios.post("http://localhost:8080/user/login", userInfo)  //here in backend data is added to database
+      .then((res) => {
+        console.log(res.data.user);
+        localStorage.setItem("User", JSON.stringify(res.data.user))//here in frontend data is added to localstorage
+        document.getElementById('my_modal_3').close();
+        toast.success(`Login Successful Welcome Back ${res.data.user.fullname}`);
+        setTimeout(() => {
+          navigate("/")
+          window.location.reload();
+        }, 1000);
+      })
+      .catch((err) => {
+        if (err.response) {
+          console.log(err.response.data.message);
+          toast.error(err.response.data.message)
+        }
+      })
+  }
   return (
     <div>
       <dialog id="my_modal_3" className="modal">

@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react"
 import LoginModal from './LoginModal'
+import { useAuth } from "../Context/AuthProvider";
+import Logout from "./Logout";
 
 export default function Navbar() {
+    const [authUser, setAuthUser] = useAuth();
     const [darkMode, setDarkMode] = useState(true);
     function toggle() {
         setDarkMode(!darkMode);
@@ -42,8 +45,8 @@ export default function Navbar() {
     )
     return (
         <div className={`max-w-screen-2xl container mx-auto md:px-16 px-4 fixed top-0 left-0 right-0 z-50 ${scrolled
-                ? "shadow-md bg-base-300 duration-300 transition-all ease-in-out"
-                : ""
+            ? "shadow-md bg-base-300 duration-300 transition-all ease-in-out"
+            : ""
             }`}
         >
             <div className="navbar">
@@ -118,7 +121,9 @@ export default function Navbar() {
                         </svg>
                     </label>
                     {/* login button */}
-                    <a className="btn bg-red-500 text-white rounded-500 ml-4" onClick={() => document.getElementById('my_modal_3').showModal()}>Login</a>
+                    {authUser ? <Logout /> :
+                        <a className="btn bg-red-500 text-white rounded-500 ml-4" onClick={() => document.getElementById('my_modal_3').showModal()}>Login</a>
+                    }
                     <LoginModal />
                 </div>
             </div>

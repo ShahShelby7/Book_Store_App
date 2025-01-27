@@ -1,19 +1,43 @@
 import React from 'react'
 import LoginModal from './LoginModal'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from "react-hook-form"
-
+import axios from "axios";
+import toast from 'react-hot-toast';
 
 export default function SignUp() {
+    const navigate = useNavigate();
     const {
         register,
         handleSubmit,
         watch,
         formState: { errors },
     } = useForm()
-
-    const onSubmit = (data) => console.log(data)
-
+    //when submitting the signup form => we need to add this (req.body) data to the database
+    const onSubmit = async (data) => {
+        let userInfo = {
+            fullname: data.fullname,
+            email: data.email,
+            password: data.password
+        }
+        console.log(userInfo);
+        //sending the data to backend with help of api
+        axios.post("http://localhost:8080/user/signup", userInfo)  //this userInfo is sent to backend api as req.body formdata
+            .then((res) => {   //we send the user data as response from backend api
+                console.log(res.data.user);
+                localStorage.setItem("User", JSON.stringify(res.data.user))
+                toast.success(`SignUp Sucessful Welcome ${res.data.user.fullname}`)
+                setTimeout(() => {
+                    navigate('/');
+                    window.location.reload();
+                }, 2000);
+            })
+            .catch((err) => {
+                if (err.response) {
+                    toast.error(err.response.data.message)
+                }
+            })
+    }
     return (
         <div className='flex justify-center mt-40'>
             <div>
@@ -44,8 +68,8 @@ export default function SignUp() {
                             <span className='text-xl text-black font-semibold'>Name</span>
                             <br />
                             <input type="text" placeholder='Enter your Name'
-                                className='outline-none text-xl bg-transparent ' name='name'
-                                {...register("name", { required: true })}
+                                className='outline-none text-xl bg-transparent ' name='fullname'
+                                {...register("fullname", { required: true })}
                             />
                             {errors.name && <span className='text-sm text-red-500'>This field is required</span>}
                         </div>
